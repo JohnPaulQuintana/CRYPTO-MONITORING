@@ -19,7 +19,8 @@ export default defineConfig({
 
             "/api":{
 
-                target:"http://localhost:8002",
+                // target:"http://localhost:8002",
+                target:"https://crypto-monitoring-ajh4.onrender.com/",
 
                 changeOrigin:true,
 
