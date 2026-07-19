@@ -1,0 +1,8 @@
+fastapi
+uvicorn 
+python-dotenv 
+pandas 
+requests 
+jinja2
+google-auth 
+gspread

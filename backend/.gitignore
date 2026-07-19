@@ -1,0 +1,95 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+
+# =========================
+# IDE
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Testing
+# =========================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.pyre/
+.ruff_cache/
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# Build
+# =========================
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# =========================
+# Cache
+# =========================
+.cache/
+
+# =========================
+# SQLite
+# =========================
+*.sqlite3
+*.db
+
+# =========================
+# Uploads / Generated Files
+# =========================
+uploads/
+downloads/
+temp/
+tmp/
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# PyInstaller
+# =========================
+*.spec
+
+# =========================
+# Coverage
+# =========================
+.coverage.*
+coverage.xml
+
+# =========================
+# Local Config
+# =========================
+config.local.*
