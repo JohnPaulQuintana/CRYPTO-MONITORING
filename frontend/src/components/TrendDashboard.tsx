@@ -26,159 +26,171 @@ import {
 } from "lucide-react";
 
 // Memoized chart component to prevent unnecessary re-renders
-const ChartRenderer = memo(({ data, chartType, timeRange, filterDataByTimeRange }: any) => {
-  const filteredData = useMemo(() => filterDataByTimeRange(data), [data, timeRange]);
-  
-  const formatTime = useCallback((value: string) => {
-    const date = new Date(value);
-    const hours = date.getHours().toString().padStart(2, "0");
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-    return `${hours}:${minutes}`;
-  }, []);
+const ChartRenderer = memo(
+  ({ data, chartType, timeRange, filterDataByTimeRange }: any) => {
+    const filteredData = useMemo(
+      () => filterDataByTimeRange(data),
+      [data, timeRange],
+    );
 
-  const formatFullDateTime = useCallback((value: string) => {
-    const date = new Date(value);
-    return date.toLocaleString("en-US", {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    });
-  }, []);
+    const formatTime = useCallback((value: string) => {
+      const date = new Date(value);
+      const hours = date.getHours().toString().padStart(2, "0");
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+      return `${hours}:${minutes}`;
+    }, []);
 
-  const ChartComponent = useMemo(() => {
-    return chartType === "line"
-      ? LineChart
-      : chartType === "bar"
-        ? BarChart
-        : AreaChart;
-  }, [chartType]);
+    const formatFullDateTime = useCallback((value: string) => {
+      const date = new Date(value);
+      return date.toLocaleString("en-US", {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      });
+    }, []);
 
-  const DataComponent = useMemo(() => {
-    return chartType === "line" ? Line : chartType === "bar" ? Bar : Area;
-  }, [chartType]);
+    const ChartComponent = useMemo(() => {
+      return chartType === "line"
+        ? LineChart
+        : chartType === "bar"
+          ? BarChart
+          : AreaChart;
+    }, [chartType]);
 
-  // Memoize tooltip content
-  const TooltipContent = useCallback(({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      const dataPoint = payload[0].payload;
-      return (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-lg p-4 min-w-[220px]">
-          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-100">
-            <Calendar className="w-4 h-4 text-emerald-600" />
-            <span className="text-sm font-medium text-slate-700">
-              {formatFullDateTime(label)}
-            </span>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-500">Exchange Rate</span>
-              <span className="text-sm font-semibold text-slate-900">
-                ${dataPoint.exchange_rate?.toFixed(4)}
-              </span>
+    const DataComponent = useMemo(() => {
+      return chartType === "line" ? Line : chartType === "bar" ? Bar : Area;
+    }, [chartType]);
+
+    // Memoize tooltip content
+    const TooltipContent = useCallback(
+      ({ active, payload, label }: any) => {
+        if (active && payload && payload.length) {
+          const dataPoint = payload[0].payload;
+          return (
+            <div className="bg-white rounded-xl border border-slate-200 shadow-lg p-4 min-w-[220px]">
+              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-100">
+                <Calendar className="w-4 h-4 text-emerald-600" />
+                <span className="text-sm font-medium text-slate-700">
+                  {formatFullDateTime(label)}
+                </span>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-500">Exchange Rate</span>
+                  <span className="text-sm font-semibold text-slate-900">
+                    ${dataPoint.exchange_rate?.toFixed(4)}
+                  </span>
+                </div>
+                {dataPoint.volume && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-500">Volume</span>
+                    <span className="text-sm font-semibold text-slate-900">
+                      {dataPoint.volume}
+                    </span>
+                  </div>
+                )}
+                {dataPoint.high && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-500">High</span>
+                    <span className="text-sm font-semibold text-emerald-600">
+                      ${dataPoint.high.toFixed(4)}
+                    </span>
+                  </div>
+                )}
+                {dataPoint.low && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-500">Low</span>
+                    <span className="text-sm font-semibold text-rose-600">
+                      ${dataPoint.low.toFixed(4)}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
-            {dataPoint.volume && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-500">Volume</span>
-                <span className="text-sm font-semibold text-slate-900">
-                  {dataPoint.volume}
-                </span>
-              </div>
-            )}
-            {dataPoint.high && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-500">High</span>
-                <span className="text-sm font-semibold text-emerald-600">
-                  ${dataPoint.high.toFixed(4)}
-                </span>
-              </div>
-            )}
-            {dataPoint.low && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-500">Low</span>
-                <span className="text-sm font-semibold text-rose-600">
-                  ${dataPoint.low.toFixed(4)}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      );
-    }
-    return null;
-  }, [formatFullDateTime]);
+          );
+        }
+        return null;
+      },
+      [formatFullDateTime],
+    );
 
-  // Memoize chart data to prevent re-renders
-  const chartData = useMemo(() => filteredData, [filteredData]);
+    // Memoize chart data to prevent re-renders
+    const chartData = useMemo(() => filteredData, [filteredData]);
 
-  return (
-    <ChartComponent data={chartData}>
-      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-      <XAxis
-        dataKey="date"
-        tickFormatter={formatTime}
-        stroke="#94a3b8"
-        fontSize={12}
-        interval={Math.floor(chartData.length / 10)}
-        tick={{ dy: 5 }}
-      />
-      <YAxis stroke="#94a3b8" fontSize={12} width={60} />
-      <Tooltip
-        wrapperStyle={{ 
-          zIndex: 1000,
-          pointerEvents: 'none'
-        }}
-        position={{ y: 0 }}
-        content={TooltipContent}
-      />
-      <DataComponent
-        type="monotone"
-        dataKey="exchange_rate"
-        stroke="#059669"
-        strokeWidth={chartType === "line" ? 3 : 2}
-        fill={chartType === "area" ? "url(#gradient)" : "transparent"}
-        dot={chartType === "line"}
-        activeDot={{ r: 6, fill: "#059669" }}
-        isAnimationActive={false}
-      />
-      {chartType === "area" && (
-        <defs>
-          <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#059669" stopOpacity={0.3} />
-            <stop offset="95%" stopColor="#059669" stopOpacity={0} />
-          </linearGradient>
-        </defs>
-      )}
-    </ChartComponent>
-  );
-});
+    return (
+      <ChartComponent data={chartData}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+        <XAxis
+          dataKey="date"
+          tickFormatter={formatTime}
+          stroke="#94a3b8"
+          fontSize={12}
+          interval={Math.floor(chartData.length / 10)}
+          tick={{ dy: 5 }}
+        />
+        <YAxis stroke="#94a3b8" fontSize={12} width={60} />
+        <Tooltip
+          wrapperStyle={{
+            zIndex: 1000,
+            pointerEvents: "none",
+          }}
+          position={{ y: 0 }}
+          content={TooltipContent}
+        />
+        <DataComponent
+          type="monotone"
+          dataKey="exchange_rate"
+          stroke="#059669"
+          strokeWidth={chartType === "line" ? 3 : 2}
+          fill={chartType === "area" ? "url(#gradient)" : "transparent"}
+          dot={chartType === "line"}
+          activeDot={{ r: 6, fill: "#059669" }}
+          isAnimationActive={false}
+        />
+        {chartType === "area" && (
+          <defs>
+            <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#059669" stopOpacity={0.3} />
+              <stop offset="95%" stopColor="#059669" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+        )}
+      </ChartComponent>
+    );
+  },
+);
 
-ChartRenderer.displayName = 'ChartRenderer';
+ChartRenderer.displayName = "ChartRenderer";
 
 // Memoized Metric Card
-const MetricCard = memo(({ title, value, icon: Icon, subtitle, color = "emerald" }: any) => (
-  <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-    <div className="flex items-center justify-between">
-      <p className="text-sm text-slate-500 font-medium">{title}</p>
-      <Icon className={`w-5 h-5 text-${color}-600`} />
+const MetricCard = memo(
+  ({ title, value, icon: Icon, subtitle, color = "emerald" }: any) => (
+    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-slate-500 font-medium">{title}</p>
+        <Icon className={`w-5 h-5 text-${color}-600`} />
+      </div>
+      <p className="text-2xl font-bold text-slate-900 mt-2">{value}</p>
+      <p className="text-xs text-slate-400 mt-1">{subtitle}</p>
     </div>
-    <p className="text-2xl font-bold text-slate-900 mt-2">{value}</p>
-    <p className="text-xs text-slate-400 mt-1">{subtitle}</p>
-  </div>
-));
+  ),
+);
 
-MetricCard.displayName = 'MetricCard';
+MetricCard.displayName = "MetricCard";
 
 export default function TrendDashboard() {
   const { trends, loading } = useTrends();
   const [selectedBrand, setSelectedBrand] = useState<string>("");
   const [selectedCrypto, setSelectedCrypto] = useState<string>("");
   const [chartType, setChartType] = useState<"line" | "area" | "bar">("area");
-  const [timeRange, setTimeRange] = useState<"1M" | "3M" | "6M" | "1Y" | "ALL">("1M");
+  const [timeRange, setTimeRange] = useState<"1M" | "3M" | "6M" | "1Y" | "ALL">(
+    "1M",
+  );
 
   const brands = Object.keys(trends);
   const activeBrand = selectedBrand || brands[0] || "";
@@ -187,34 +199,37 @@ export default function TrendDashboard() {
   const currencies = trends[activeBrand]?.[activeCrypto] || {};
 
   // Memoize filter function
-  const filterDataByTimeRange = useCallback((data: any[]) => {
-    if (timeRange === "ALL") return data;
-    
-    const now = new Date();
-    const cutoff = new Date();
-    
-    switch (timeRange) {
-      case "1M":
-        cutoff.setMonth(now.getMonth() - 1);
-        break;
-      case "3M":
-        cutoff.setMonth(now.getMonth() - 3);
-        break;
-      case "6M":
-        cutoff.setMonth(now.getMonth() - 6);
-        break;
-      case "1Y":
-        cutoff.setFullYear(now.getFullYear() - 1);
-        break;
-      default:
-        return data;
-    }
-    
-    return data.filter((item: any) => {
-      const itemDate = new Date(item.date);
-      return itemDate >= cutoff;
-    });
-  }, [timeRange]);
+  const filterDataByTimeRange = useCallback(
+    (data: any[]) => {
+      if (timeRange === "ALL") return data;
+
+      const now = new Date();
+      const cutoff = new Date();
+
+      switch (timeRange) {
+        case "1M":
+          cutoff.setMonth(now.getMonth() - 1);
+          break;
+        case "3M":
+          cutoff.setMonth(now.getMonth() - 3);
+          break;
+        case "6M":
+          cutoff.setMonth(now.getMonth() - 6);
+          break;
+        case "1Y":
+          cutoff.setFullYear(now.getFullYear() - 1);
+          break;
+        default:
+          return data;
+      }
+
+      return data.filter((item: any) => {
+        const itemDate = new Date(item.date);
+        return itemDate >= cutoff;
+      });
+    },
+    [timeRange],
+  );
 
   // Calculate metrics with useMemo and debounced updates
   const metrics = useMemo(() => {
@@ -230,7 +245,8 @@ export default function TrendDashboard() {
 
       if (values.length === 0) return;
 
-      const avg = values.reduce((a: number, b: number) => a + b, 0) / values.length;
+      const avg =
+        values.reduce((a: number, b: number) => a + b, 0) / values.length;
       const max = Math.max(...values);
       const min = Math.min(...values);
       const current = values[values.length - 1];
@@ -277,20 +293,29 @@ export default function TrendDashboard() {
   }, []);
 
   // Handle brand change with useCallback
-  const handleBrandChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedBrand(e.target.value);
-    setSelectedCrypto("");
-  }, []);
+  const handleBrandChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setSelectedBrand(e.target.value);
+      setSelectedCrypto("");
+    },
+    [],
+  );
 
   // Handle crypto change with useCallback
-  const handleCryptoChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCrypto(e.target.value);
-  }, []);
+  const handleCryptoChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setSelectedCrypto(e.target.value);
+    },
+    [],
+  );
 
   // Handle time range change with useCallback
-  const handleTimeRangeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setTimeRange(e.target.value as any);
-  }, []);
+  const handleTimeRangeChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setTimeRange(e.target.value as any);
+    },
+    [],
+  );
 
   if (loading) {
     return (
@@ -421,8 +446,10 @@ export default function TrendDashboard() {
             const filteredData = filterDataByTimeRange(data);
             const change = metrics.changes[currency] || 0;
             const isPositive = change >= 0;
-            const currentRate = filteredData[filteredData.length - 1]?.exchange_rate || 0;
-
+            const currentRate =
+              filteredData[filteredData.length - 1]?.exchange_rate || 0;
+            const yesterdayRate =
+              filteredData[filteredData.length - 2]?.exchange_rate || 0;
             return (
               <div
                 key={currency}
@@ -458,13 +485,16 @@ export default function TrendDashboard() {
                       <div className="h-6 w-px bg-slate-200" />
                       <div>
                         <p className="text-xs text-slate-500 font-medium">
-                          {timeRange === "ALL" ? "Change" : `${timeRange} Change`}
+                          {/* {timeRange === "ALL"
+                            ? "Change"
+                            : `${timeRange} Change`} */}
+                            Yesterday Rate
                         </p>
                         <p
-                          className={`text-base font-bold ${getChangeColor(change)}`}
+                          className={`text-base font-bold ${getChangeColor(yesterdayRate)}`}
                         >
-                          {change !== 0
-                            ? `${isPositive ? "+" : ""}${change.toFixed(2)}%`
+                          {yesterdayRate !== 0
+                            ? `${isPositive ? "+" : ""}${yesterdayRate.toFixed(2)}%`
                             : "0.00%"}
                         </p>
                       </div>
